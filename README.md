@@ -32,13 +32,25 @@ O script `criar_template_ppc_full.py` executa as seguintes ações:
 ### Pré-requisitos
 *   Python 3.x
 *   Acesso a um servidor Zabbix (com URL e token de API válidos).
-*   Biblioteca `pyzabbix` instalada.
-*   Biblioteca `python-dotenv` instalada.
 
-### Instalação das Bibliotecas
-```bash
-pip install pyzabbix python-dotenv
-```
+### Instalação
+
+Recomendamos o uso de um ambiente virtual (venv) para isolar as dependências do projeto.
+
+1.  **Crie o ambiente virtual:**
+    ```bash
+    python3 -m venv venv
+    ```
+
+2.  **Ative o ambiente virtual:**
+    ```bash
+    source venv/bin/activate
+    ```
+
+3.  **Instale as dependências:**
+    ```bash
+    pip install pyzabbix python-dotenv
+    ```
 
 ### Configuração
 1.  Crie um arquivo `.env` na raiz do projeto (você pode copiar o `env_example.txt` como base).
