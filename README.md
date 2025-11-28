@@ -21,11 +21,12 @@ O script `criar_template_ppc_full.py` executa as seguintes ações:
 *   Associa o template a um grupo de host (`Templates/Energy`).
 *   Define um mapeamento de valores para o status de saída do UPS (Online, OnBattery, etc.).
 *   Cria itens de monitoramento para:
-    *   Status de Operação.
-    *   Capacidade da Bateria.
-    *   Temperatura Interna.
-    *   Voltagens de Entrada e Saída Trifásicas (Fases R, S, T).
-*   Configura uma trigger de alerta para detecção de falta de energia (UPS operando na bateria).
+    *   **Identificação:** Serial Number, Modelo do UPS e Versão de Firmware (atualização a cada 1h).
+    *   **Status Geral:** Status de Operação, Capacidade da Bateria, Temperatura Interna.
+    *   **Elétrica:** Voltagens de Entrada e Saída Trifásicas (Fases R, S, T).
+*   Configura triggers de alerta:
+    *   **Crítico:** Falta de Energia (UPS operando na bateria).
+    *   **Atenção:** Serial Number Alterado (indica possível troca de equipamento).
 
 ## Como Usar o Script (`criar_template_ppc_full.py`)
 

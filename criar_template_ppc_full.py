@@ -15,7 +15,8 @@ if not ZABBIX_URL or not ZABBIX_TOKEN:
     print("Erro: ZABBIX_URL e ZABBIX_TOKEN devem ser definidos no arquivo .env")
     sys.exit(1)
 
-TEMPLATE_NAME = "Template No-Break PPC (SNMPv2)"
+TEMPLATE_NAME = "Template_No-Break_PPC_SNMPv2"
+TEMPLATE_VISIBLE_NAME = "Template No-Break PPC (SNMPv2)"
 # Grupo onde o template será salvo. O script tenta achar o ID 1, ou cria um novo se precisar.
 HOST_GROUP_NAME = "Templates/Energy" 
 
@@ -24,6 +25,32 @@ HOST_GROUP_NAME = "Templates/Energy"
 # Trifásico Base: .1.3.6.1.4.1.935.1.1.1.8 (upsThreePhase) [cite: 4, 6]
 
 ITEMS_TO_CREATE = [
+    # --- Identificação ---
+    {
+        "name": "Serial Number",
+        "key": "ups.serial",
+        "oid": ".1.3.6.1.4.1.935.1.1.1.1.2.3.0", # upsSmartIdentUpsSerialNumber
+        "units": "",
+        "value_type": 1, # Character
+        "delay": "1h" # Não precisa checar com frequência
+    },
+    {
+        "name": "Modelo do UPS",
+        "key": "ups.model",
+        "oid": ".1.3.6.1.4.1.935.1.1.1.1.1.1.0", # upsBaseIdentModel
+        "units": "",
+        "value_type": 1, # Character
+        "delay": "1h"
+    },
+    {
+        "name": "Versão de Firmware",
+        "key": "ups.firmware",
+        "oid": ".1.3.6.1.4.1.935.1.1.1.1.2.1.0", # upsSmartIdentFirmwareRevision
+        "units": "",
+        "value_type": 1, # Character
+        "delay": "1h"
+    },
+
     # --- Status Geral ---
     {
         "name": "Status de Operação",
@@ -134,6 +161,7 @@ def main():
         # Tenta criar
         template = zapi.template.create({
             "host": TEMPLATE_NAME,
+            "name": TEMPLATE_VISIBLE_NAME,
             "groups": [{"groupid": group_id}],
             "description": "Template Trifásico PPC - Criado via Python API"
         })
@@ -200,11 +228,19 @@ def main():
 
             # Lógica para Multiplicador (Pre-processing)
             if "multiplier" in item:
-                params["preprocessing"] = [{"type": "1", "params": str(item['multiplier'])}]
+                params["preprocessing"] = [{
+                    "type": "1", 
+                    "params": str(item['multiplier']),
+                    "error_handler": "0",
+                    "error_handler_params": ""
+                }]
 
             if exists:
                 # Update (Item já existe)
                 params["itemid"] = exists[0]['itemid']
+                # Remove hostid para update, pois a API não permite mudar/reenviar
+                if "hostid" in params:
+                    del params["hostid"]
                 zapi.item.update(params)
                 print(f"Item atualizado: {item['name']}")
             else:
@@ -219,7 +255,7 @@ def main():
     print("Verificando Triggers...")
     try:
         description = "UPS: Falta de Energia (Operando na Bateria)"
-        expression = f"{{{TEMPLATE_NAME}:ups.status.last()}}=3" # Status 3 = OnBattery [cite: 53]
+        expression = f"last(/{TEMPLATE_NAME}/ups.status)=3" # Status 3 = OnBattery [cite: 53]
         
         # Verifica duplicidade simples
         trig_exists = zapi.trigger.get(filter={"description": description, "host": TEMPLATE_NAME})
@@ -232,10 +268,27 @@ def main():
             })
             print("Trigger de Falta de Energia criada.")
         else:
-            print("Trigger já existe.")
+            print("Trigger de Falta de Energia já existe.")
+
+        # Trigger: Mudança de Serial Number
+        description_sn = "UPS: Serial Number Alterado (Troca de Equipamento?)"
+        # Função change(): retorna 1 se o valor atual for diferente do anterior
+        expression_sn = f"change(/{TEMPLATE_NAME}/ups.serial)=1" 
+        
+        trig_sn_exists = zapi.trigger.get(filter={"description": description_sn, "host": TEMPLATE_NAME})
+        if not trig_sn_exists:
+            zapi.trigger.create({
+                "description": description_sn,
+                "expression": expression_sn,
+                "priority": 2, # Warning
+                "manual_close": "1"
+            })
+            print("Trigger de Serial Number criada.")
+        else:
+            print("Trigger de Serial Number já existe.")
             
     except Exception as e:
-        print(f"Erro na trigger: {e}")
+        print(f"Erro nas triggers: {e}")
 
     print("\n--- Concluído! Verifique o template no Zabbix ---")
 
