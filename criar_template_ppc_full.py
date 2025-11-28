@@ -219,7 +219,7 @@ def main():
     print("Verificando Triggers...")
     try:
         description = "UPS: Falta de Energia (Operando na Bateria)"
-        expression = f"last(/{TEMPLATE_NAME}/ups.status)=3" # Status 3 = OnBattery [cite: 53]
+        expression = f"{{{TEMPLATE_NAME}:ups.status.last()}}=3" # Status 3 = OnBattery [cite: 53]
         
         # Verifica duplicidade simples
         trig_exists = zapi.trigger.get(filter={"description": description, "host": TEMPLATE_NAME})
