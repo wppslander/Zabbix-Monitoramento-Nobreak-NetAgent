@@ -1,0 +1,2 @@
+ZABBIX_URL="http://seu-zabbix-url/"
+ZABBIX_TOKEN="seu-token-aqui"

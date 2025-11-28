@@ -33,21 +33,23 @@ O script `criar_template_ppc_full.py` executa as seguintes ações:
 *   Python 3.x
 *   Acesso a um servidor Zabbix (com URL e token de API válidos).
 *   Biblioteca `pyzabbix` instalada.
+*   Biblioteca `python-dotenv` instalada.
 
-### Instalação da Biblioteca
+### Instalação das Bibliotecas
 ```bash
-pip install pyzabbix
+pip install pyzabbix python-dotenv
 ```
 
 ### Configuração
-Antes de executar, edite o script `criar_template_ppc_full.py` e atualize as seguintes variáveis no cabeçalho com suas informações de Zabbix:
+1.  Crie um arquivo `.env` na raiz do projeto (você pode copiar o `env_example.txt` como base).
+2.  Adicione suas credenciais do Zabbix no arquivo `.env`:
 
-```python
-ZABBIX_URL = "http://seu-servidor-zabbix/"
-ZABBIX_TOKEN = "seu-token-api-zabbix"
-# TEMPLATE_NAME e HOST_GROUP_NAME podem ser mantidos como estão,
-# ou ajustados conforme sua conveniência.
+```env
+ZABBIX_URL="http://seu-servidor-zabbix/"
+ZABBIX_TOKEN="seu-token-api-zabbix"
 ```
+
+O script lerá essas variáveis automaticamente.
 
 ### Execução
 Após a configuração, execute o script para criar ou atualizar o template no Zabbix:

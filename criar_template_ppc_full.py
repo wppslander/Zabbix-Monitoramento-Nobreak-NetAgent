@@ -1,10 +1,19 @@
 from pyzabbix import ZabbixAPI
 import sys
+import os
+from dotenv import load_dotenv
+
+# Carrega variáveis do arquivo .env
+load_dotenv()
 
 # --- CONFIGURAÇÃO ---
 # URL fornecida (ajustei para apontar para a API. Se der erro 404, tente adicionar /zabbix no final)
-ZABBIX_URL = "http://digitalsat-vm2.slv.com.br:61180/" 
-ZABBIX_TOKEN = "9504749a354bc373eb1d0cfc2cf67dee9add31b160cea3e099804f7db36a8889"
+ZABBIX_URL = os.getenv("ZABBIX_URL")
+ZABBIX_TOKEN = os.getenv("ZABBIX_TOKEN")
+
+if not ZABBIX_URL or not ZABBIX_TOKEN:
+    print("Erro: ZABBIX_URL e ZABBIX_TOKEN devem ser definidos no arquivo .env")
+    sys.exit(1)
 
 TEMPLATE_NAME = "Template No-Break PPC (SNMPv2)"
 # Grupo onde o template será salvo. O script tenta achar o ID 1, ou cria um novo se precisar.
