@@ -1,74 +1,75 @@
-# Projeto de Monitoramento de No-Breaks Intelbras (SNMP)
+# Zabbix Monitoring: Intelbras/PPC UPS (SNMPv2)
 
-**Autor:** Daniel Wppslander
+Este projeto contém ferramentas de automação para criação e atualização de templates de monitoramento Zabbix para No-Breaks da linha Intelbras/PPC utilizando o protocolo SNMPv2 e o agente NetAgent.
 
-Este projeto tem como objetivo principal a implementação de um sistema de monitoramento para No-Breaks (UPS) da Intelbras, utilizando as Placas SNMP instaladas nos equipamentos. A intenção é coletar dados em tempo real para garantir a estabilidade e a disponibilidade dos sistemas críticos.
+Desenvolvido por: **Daniel Wppslander** - [GitHub](https://github.com/wppslander)
 
-A biblioteca MIB (Management Information Base) utilizada como referência para a comunicação SNMP, `Upsmate.mib`, foi obtida do site oficial da Intelbras, especificamente na página da Placa SNMP para gerenciamento remoto PGR 801L:
-[https://www.intelbras.com/pt-br/placa-snmp-para-gerenciamento-remoto-pgr-801l](https://www.intelbras.com/pt-br/placa-snmp-para-gerenciamento-remoto-pgr-801l)
+---
 
-## Componentes do Projeto
+## 🚀 Itens Monitorados (Sensores)
 
-*   **`criar_template_ppc_full.py`**: Script Python responsável por automatizar a criação e atualização de templates de monitoramento no Zabbix. Ele utiliza a API do Zabbix para configurar itens de coleta de dados (baseados nos OIDs do MIB) e triggers de alerta para os No-Breaks.
-*   **`Upsmate.mib`**: Arquivo MIB que define os identificadores de objeto (OIDs) e a estrutura dos dados SNMP para os dispositivos UPS da PPC/Intelbras. Este arquivo é crucial para entender como interpretar os dados coletados via SNMP.
-*   **`GEMINI.md`**: Documentação interna para o Gemini CLI, detalhando o contexto do projeto, tecnologias utilizadas, e instruções de uso para o agente.
+O template coleta as seguintes métricas essenciais do No-Break:
 
-## Funcionalidades do Script Python
+| Item | Descrição | OID | Frequência |
+| :--- | :--- | :--- | :--- |
+| **Status de Operação** | Estado atual (OnLine, OnBattery, Bypass, etc) | `.1.3.6.1.4.1.935.1.1.1.4.1.1.0` | 1m |
+| **Carga de Saída (Load)** | Percentual de uso da potência nominal do UPS | `.1.3.6.1.4.1.935.1.1.1.4.2.3.0` | 1m |
+| **Capacidade da Bateria** | Nível de carga atual da bateria (%) | `.1.3.6.1.4.1.935.1.1.1.2.2.1.0` | 5m |
+| **Temperatura Interna** | Temperatura do sistema de baterias (ºC) | `.1.3.6.1.4.1.935.1.1.1.2.2.3.0` | 5m |
+| **Tensão de Entrada (R/S/T)** | Voltagem de entrada (Fases R, S e T) | `.1.3.6.1.4.1.935.1.1.1.8.2.x.0` | 1m |
+| **Tensão de Saída (R/S/T)** | Voltagem de saída (Fases R, S e T) | `.1.3.6.1.4.1.935.1.1.1.8.3.x.0` | 1m |
+| **Serial Number** | Identificação única do hardware | `.1.3.6.1.4.1.935.1.1.1.1.2.3.0` | 1h |
+| **Modelo do UPS** | Nome do modelo do equipamento | `.1.3.6.1.4.1.935.1.1.1.1.1.1.0` | 1h |
 
-O script `criar_template_ppc_full.py` executa as seguintes ações:
-*   Conecta-se a um servidor Zabbix configurado.
-*   Cria ou atualiza um template Zabbix chamado `"Template No-Break PPC (SNMPv2)"`.
-*   Associa o template a um grupo de host (`Templates/Energy`).
-*   Define um mapeamento de valores para o status de saída do UPS (Online, OnBattery, etc.).
-*   Cria itens de monitoramento para:
-    *   **Identificação:** Serial Number, Modelo do UPS e Versão de Firmware (atualização a cada 1h).
-    *   **Status Geral:** Status de Operação, Capacidade da Bateria, Temperatura Interna.
-    *   **Elétrica:** Voltagens de Entrada e Saída Trifásicas (Fases R, S, T).
-*   Configura triggers de alerta:
-    *   **Crítico:** Falta de Energia (UPS operando na bateria).
-    *   **Atenção:** Serial Number Alterado (indica possível troca de equipamento).
+---
 
-## Como Usar o Script (`criar_template_ppc_full.py`)
+## 🔔 Triggers de Alerta (Alertas Automáticos)
 
-### Pré-requisitos
+O sistema conta com inteligência para notificar as seguintes condições críticas:
+
+1.  **UPS: Falta de Energia (Operando na Bateria)**
+    *   **Severidade:** Desastre (High)
+    *   **Condição:** Dispara quando o status de saída muda para `OnBattery` (3).
+2.  **UPS: Sobrecarga de Saída (>90%)**
+    *   **Severidade:** Média (Average)
+    *   **Condição:** Dispara se a carga conectada ultrapassar 90% da capacidade do UPS.
+3.  **UPS: Bateria com Capacidade Baixa (<20%)**
+    *   **Severidade:** Desastre (High)
+    *   **Condição:** Alerta crítico quando a autonomia da bateria cai abaixo de 20%.
+4.  **UPS: Serial Number Alterado**
+    *   **Severidade:** Informação (Warning)
+    *   **Condição:** Detecta se o hardware foi trocado ou se houve alteração na placa NetAgent.
+
+---
+
+## 🛠️ Como Utilizar
+
+### 1. Requisitos
 *   Python 3.x
-*   Acesso a um servidor Zabbix (com URL e token de API válidos).
+*   Ambiente Virtual (venv) configurado
+*   Bibliotecas: `requests`, `python-dotenv`
 
-### Instalação
-
-Recomendamos o uso de um ambiente virtual (venv) para isolar as dependências do projeto.
-
-1.  **Crie o ambiente virtual:**
-    ```bash
-    python3 -m venv venv
-    ```
-
-2.  **Ative o ambiente virtual:**
-    ```bash
-    source venv/bin/activate
-    ```
-
-3.  **Instale as dependências:**
-    ```bash
-    pip install pyzabbix python-dotenv
-    ```
-
-### Configuração
-1.  Crie um arquivo `.env` na raiz do projeto (você pode copiar o `env_example.txt` como base).
-2.  Adicione suas credenciais do Zabbix no arquivo `.env`:
-
+### 2. Configuração
+Edite o arquivo `.env` na raiz do projeto:
 ```env
-ZABBIX_URL="http://seu-servidor-zabbix/"
-ZABBIX_TOKEN="seu-token-api-zabbix"
+ZABBIX_URL="http://seu-servidor/zabbix/"
+ZABBIX_TOKEN="seu-api-token-aqui"
 ```
 
-O script lerá essas variáveis automaticamente.
+### 3. Scripts Disponíveis
 
-### Execução
-Após a configuração, execute o script para criar ou atualizar o template no Zabbix:
+*   **`criar_template_ppc_full.py`**: Cria o template do zero, incluindo grupos de hosts, mapeamento de valores (Value Maps) e todos os itens.
+*   **`atualizar_template_ppc.py`**: Atualiza um template existente com os itens mais recentes, novas triggers e assinatura do autor.
 
+### 4. Execução
+Para atualizar o template atual:
 ```bash
-python criar_template_ppc_full.py
+./venv/bin/python atualizar_template_ppc.py
 ```
 
-Este procedimento irá provisionar o template necessário para começar o monitoramento dos seus No-Breaks Intelbras via SNMP no Zabbix.
+---
+
+## 📝 Notas de Versão
+*   Todos os itens e triggers incluem a assinatura: `Daniel Wppslander - https://github.com/wppslander`.
+*   Suporte completo para Zabbix 7.x utilizando autenticação via API Token (Bearer).
+*   Normalização automática de URL para evitar erros de endpoint da API.
