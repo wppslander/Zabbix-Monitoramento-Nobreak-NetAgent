@@ -1,6 +1,6 @@
-# Zabbix Monitoring: Intelbras/PPC UPS (SNMPv2)
+# Zabbix Monitoring: Intelbras/PPC UPS (SNMPv2) - NetAgent IX
 
-Este projeto contém ferramentas de automação para criação e atualização de templates de monitoramento Zabbix para No-Breaks da linha Intelbras/PPC utilizando o protocolo SNMPv2 e o agente NetAgent.
+Este projeto contém ferramentas de automação para criação e atualização de templates de monitoramento Zabbix para No-Breaks da linha Intelbras/PPC utilizando o protocolo SNMPv2 e especificamente a placa de comunicação **NetAgent IX** (vendida pela Intelbras).
 
 Desenvolvido por: **Daniel Wppslander** - [GitHub](https://github.com/wppslander)
 
