@@ -1,5 +1,10 @@
 # Patch Notes - Zabbix UPS Monitoring (PPC/Intelbras)
 
+## [1.2.0] - 2026-03-18
+
+### ✨ Novas Funcionalidades
+- **Monitoramento Preditivo de Temperatura**: Nova trigger que detecta aumento rápido de temperatura (delta de 3ºC em 15min) através da macro `{$UPS.TEMP.RISE.MAX}`.
+
 ## [1.1.0] - 2026-03-18
 
 ### ✨ Novas Funcionalidades

@@ -180,6 +180,11 @@ def main():
                 "macro": "{$UPS.BATTERY.VOLT.MIN}",
                 "value": "48",
                 "description": "Voltagem mínima do banco de baterias em descarga para disparo de alerta."
+            },
+            {
+                "macro": "{$UPS.TEMP.RISE.MAX}",
+                "value": "3",
+                "description": "Variação máxima permitida de temperatura em 15min para alerta preditivo."
             }
         ]
     }
@@ -238,6 +243,7 @@ def main():
         {"desc": "UPS: Sobrecarga de Saída (>90%)", "exp": f"last(/{TEMPLATE_NAME}/ups.output.load)>90", "pri": 3},
         {"desc": "UPS: Bateria com Capacidade Baixa (<20%)", "exp": f"last(/{TEMPLATE_NAME}/ups.battery.capacity)<20", "pri": 4},
         {"desc": "UPS: Voltagem de Bateria Abaixo da Nominal (Falha Iminente)", "exp": f"last(/{TEMPLATE_NAME}/ups.battery.voltage)<last(/{TEMPLATE_NAME}/ups.battery.rating.voltage) and last(/{TEMPLATE_NAME}/ups.status)=3", "pri": 4},
+        {"desc": "UPS: Aumento Rápido de Temperatura (Preditivo)", "exp": f"last(/{TEMPLATE_NAME}/ups.temperature) - min(/{TEMPLATE_NAME}/ups.temperature,15m) > {{$UPS.TEMP.RISE.MAX}}", "pri": 3},
         {"desc": "UPS: Serial Number Alterado", "exp": f"change(/{TEMPLATE_NAME}/ups.serial)=1", "pri": 2}
     ]
 

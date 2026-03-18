@@ -40,7 +40,10 @@ O sistema conta com inteligência para notificar as seguintes condições críti
 4.  **UPS: Voltagem de Bateria Baixa (Macro)**
     *   **Severidade:** Alta (High)
     *   **Condição:** Dispara se a voltagem cair abaixo da macro `{$UPS.BATTERY.VOLT.MIN}` **somente quando o UPS estiver em modo bateria**. Evita alarmes falsos enquanto o equipamento está em modo rede.
-5.  **UPS: Serial Number Alterado**
+5.  **UPS: Aumento Rápido de Temperatura (Preditivo)**
+    *   **Severidade:** Média (Average)
+    *   **Condição:** Detecta se a temperatura subiu mais que `{$UPS.TEMP.RISE.MAX}` graus em um intervalo de 15 minutos. Ideal para identificar falhas térmicas antes que atinjam níveis críticos.
+6.  **UPS: Serial Number Alterado**
     *   **Severidade:** Informação (Warning)
     *   **Condição:** Detecta se o hardware foi trocado ou se houve alteração na placa NetAgent.
 
