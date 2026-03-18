@@ -56,8 +56,9 @@ ZABBIX_URL="http://seu-servidor/zabbix/"
 ZABBIX_TOKEN="seu-api-token-aqui"
 ```
 
-### 3. Scripts Disponíveis
+### 3. Scripts e Arquivos Disponíveis
 
+*   **`Upsmate.mib`**: Arquivo MIB original para consulta de OIDs e documentação técnica da Intelbras/PPC.
 *   **`criar_template_ppc_full.py`**: Cria o template do zero, incluindo grupos de hosts, mapeamento de valores (Value Maps) e todos os itens.
 *   **`atualizar_template_ppc.py`**: Atualiza um template existente com os itens mais recentes, novas triggers e assinatura do autor.
 
