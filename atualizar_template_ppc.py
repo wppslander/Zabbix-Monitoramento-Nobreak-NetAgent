@@ -87,6 +87,7 @@ def main():
         {"name": "Carga de Saída", "key": "ups.output.load", "oid": ".1.3.6.1.4.1.935.1.1.1.4.2.3.0", "units": "%", "vtype": 3, "delay": "1m", "desc": "Carga atual."},
         {"name": "Capacidade da Bateria", "key": "ups.battery.capacity", "oid": ".1.3.6.1.4.1.935.1.1.1.2.2.1.0", "units": "%", "vtype": 3, "delay": "5m", "desc": "Nível da bateria."},
         {"name": "Tensão da Bateria", "key": "ups.battery.voltage", "oid": ".1.3.6.1.4.1.935.1.1.1.2.2.2.0", "units": "V", "vtype": 0, "delay": "1m", "desc": "Voltagem da bateria.", "mult": 0.1},
+        {"name": "Tensão Nominal das Baterias (Rating)", "key": "ups.battery.rating.voltage", "oid": ".1.3.6.1.4.1.935.1.1.1.8.8.7.0", "units": "V", "vtype": 0, "delay": "1h", "desc": "Rating do hardware.", "mult": 0.1},
         {"name": "Status de Operação", "key": "ups.status", "oid": ".1.3.6.1.4.1.935.1.1.1.4.1.1.0", "units": "", "vtype": 3, "delay": "1m", "desc": "Status atual.", "vmap": "UPS Output Status"},
         {"name": "Temperatura Interna", "key": "ups.temperature", "oid": ".1.3.6.1.4.1.935.1.1.1.2.2.3.0", "units": "ºC", "vtype": 0, "delay": "5m", "desc": "Temp. interna.", "mult": 0.1},
         {"name": "Serial Number", "key": "ups.serial", "oid": ".1.3.6.1.4.1.935.1.1.1.1.2.3.0", "units": "", "vtype": 1, "delay": "1h", "desc": "Número de Série."}
@@ -145,9 +146,9 @@ def main():
             "pri": 4
         },
         {
-            "desc": "UPS: Voltagem de Bateria Baixa (Macro)", 
-            "exp": f"last(/{TEMPLATE_NAME}/ups.battery.voltage)<{{$UPS.BATTERY.VOLT.MIN}} and last(/{TEMPLATE_NAME}/ups.status)=3",
-            "recovery": f"last(/{TEMPLATE_NAME}/ups.battery.voltage)>({{$UPS.BATTERY.VOLT.MIN}}+2) or last(/{TEMPLATE_NAME}/ups.status)<>3", # Recupera se subir +2V OU sair do modo bateria
+            "desc": "UPS: Voltagem de Bateria Abaixo da Nominal (Falha Iminente)", 
+            "exp": f"last(/{TEMPLATE_NAME}/ups.battery.voltage)<last(/{TEMPLATE_NAME}/ups.battery.rating.voltage) and last(/{TEMPLATE_NAME}/ups.status)=3",
+            "recovery": f"last(/{TEMPLATE_NAME}/ups.battery.voltage)>last(/{TEMPLATE_NAME}/ups.battery.rating.voltage) or last(/{TEMPLATE_NAME}/ups.status)<>3",
             "pri": 4
         }
     ]

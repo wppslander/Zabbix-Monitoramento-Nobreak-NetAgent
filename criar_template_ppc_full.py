@@ -78,6 +78,16 @@ ITEMS_TO_CREATE = [
         "description": "Tensão atual do banco de baterias."
     },
     {
+        "name": "Tensão Nominal das Baterias (Rating)",
+        "key": "ups.battery.rating.voltage",
+        "oid": ".1.3.6.1.4.1.935.1.1.1.8.8.7.0",
+        "units": "V",
+        "value_type": 0,
+        "multiplier": 0.1,
+        "delay": "1h",
+        "description": "Tensão nominal configurada no hardware (ex: 72V)."
+    },
+    {
         "name": "Temperatura Interna",
         "key": "ups.temperature",
         "oid": ".1.3.6.1.4.1.935.1.1.1.2.2.3.0",
@@ -227,7 +237,7 @@ def main():
         {"desc": "UPS: Falta de Energia (Operando na Bateria)", "exp": f"last(/{TEMPLATE_NAME}/ups.status)=3", "pri": 4},
         {"desc": "UPS: Sobrecarga de Saída (>90%)", "exp": f"last(/{TEMPLATE_NAME}/ups.output.load)>90", "pri": 3},
         {"desc": "UPS: Bateria com Capacidade Baixa (<20%)", "exp": f"last(/{TEMPLATE_NAME}/ups.battery.capacity)<20", "pri": 4},
-        {"desc": "UPS: Voltagem de Bateria Baixa (Macro)", "exp": f"last(/{TEMPLATE_NAME}/ups.battery.voltage)<{{$UPS.BATTERY.VOLT.MIN}} and last(/{TEMPLATE_NAME}/ups.status)=3", "pri": 4},
+        {"desc": "UPS: Voltagem de Bateria Abaixo da Nominal (Falha Iminente)", "exp": f"last(/{TEMPLATE_NAME}/ups.battery.voltage)<last(/{TEMPLATE_NAME}/ups.battery.rating.voltage) and last(/{TEMPLATE_NAME}/ups.status)=3", "pri": 4},
         {"desc": "UPS: Serial Number Alterado", "exp": f"change(/{TEMPLATE_NAME}/ups.serial)=1", "pri": 2}
     ]
 
