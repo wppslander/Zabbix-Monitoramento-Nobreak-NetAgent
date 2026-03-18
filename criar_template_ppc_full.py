@@ -168,8 +168,8 @@ def main():
         "macros": [
             {
                 "macro": "{$UPS.BATTERY.VOLT.MIN}",
-                "value": "72",
-                "description": "Voltagem mínima do banco de baterias para disparo de alerta."
+                "value": "48",
+                "description": "Voltagem mínima do banco de baterias em descarga para disparo de alerta."
             }
         ]
     }
@@ -227,7 +227,7 @@ def main():
         {"desc": "UPS: Falta de Energia (Operando na Bateria)", "exp": f"last(/{TEMPLATE_NAME}/ups.status)=3", "pri": 4},
         {"desc": "UPS: Sobrecarga de Saída (>90%)", "exp": f"last(/{TEMPLATE_NAME}/ups.output.load)>90", "pri": 3},
         {"desc": "UPS: Bateria com Capacidade Baixa (<20%)", "exp": f"last(/{TEMPLATE_NAME}/ups.battery.capacity)<20", "pri": 4},
-        {"desc": "UPS: Voltagem de Bateria Baixa (Macro)", "exp": f"last(/{TEMPLATE_NAME}/ups.battery.voltage)<{{$UPS.BATTERY.VOLT.MIN}}", "pri": 4},
+        {"desc": "UPS: Voltagem de Bateria Baixa (Macro)", "exp": f"last(/{TEMPLATE_NAME}/ups.battery.voltage)<{{$UPS.BATTERY.VOLT.MIN}} and last(/{TEMPLATE_NAME}/ups.status)=3", "pri": 4},
         {"desc": "UPS: Serial Number Alterado", "exp": f"change(/{TEMPLATE_NAME}/ups.serial)=1", "pri": 2}
     ]
 

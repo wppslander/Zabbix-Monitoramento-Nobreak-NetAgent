@@ -39,7 +39,7 @@ O sistema conta com inteligência para notificar as seguintes condições críti
     *   **Condição:** Alerta crítico quando a autonomia da bateria cai abaixo de 20%.
 4.  **UPS: Voltagem de Bateria Baixa (Macro)**
     *   **Severidade:** Alta (High)
-    *   **Condição:** Dispara se a voltagem cair abaixo do valor definido na macro `{$UPS.BATTERY.VOLT.MIN}`. Ideal para detectar falhas em células específicas do banco de baterias antes do colapso total.
+    *   **Condição:** Dispara se a voltagem cair abaixo da macro `{$UPS.BATTERY.VOLT.MIN}` **somente quando o UPS estiver em modo bateria**. Evita alarmes falsos enquanto o equipamento está em modo rede.
 5.  **UPS: Serial Number Alterado**
     *   **Severidade:** Informação (Warning)
     *   **Condição:** Detecta se o hardware foi trocado ou se houve alteração na placa NetAgent.

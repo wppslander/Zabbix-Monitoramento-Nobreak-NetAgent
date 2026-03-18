@@ -76,8 +76,8 @@ def main():
         "macros": [
             {
                 "macro": "{$UPS.BATTERY.VOLT.MIN}",
-                "value": "72",
-                "description": "Voltagem mínima do banco de baterias para disparo de alerta."
+                "value": "48",
+                "description": "Voltagem mínima do banco de baterias em descarga para disparo de alerta."
             }
         ]
     })
@@ -146,8 +146,8 @@ def main():
         },
         {
             "desc": "UPS: Voltagem de Bateria Baixa (Macro)", 
-            "exp": f"last(/{TEMPLATE_NAME}/ups.battery.voltage)<{{$UPS.BATTERY.VOLT.MIN}}",
-            "recovery": f"last(/{TEMPLATE_NAME}/ups.battery.voltage)>({{$UPS.BATTERY.VOLT.MIN}}+2)", # Histerese de 2V
+            "exp": f"last(/{TEMPLATE_NAME}/ups.battery.voltage)<{{$UPS.BATTERY.VOLT.MIN}} and last(/{TEMPLATE_NAME}/ups.status)=3",
+            "recovery": f"last(/{TEMPLATE_NAME}/ups.battery.voltage)>({{$UPS.BATTERY.VOLT.MIN}}+2) or last(/{TEMPLATE_NAME}/ups.status)<>3", # Recupera se subir +2V OU sair do modo bateria
             "pri": 4
         }
     ]
