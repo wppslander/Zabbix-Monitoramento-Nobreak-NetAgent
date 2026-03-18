@@ -15,6 +15,7 @@ O template coleta as seguintes métricas essenciais do No-Break:
 | **Status de Operação** | Estado atual (OnLine, OnBattery, Bypass, etc) | `.1.3.6.1.4.1.935.1.1.1.4.1.1.0` | 1m |
 | **Carga de Saída (Load)** | Percentual de uso da potência nominal do UPS | `.1.3.6.1.4.1.935.1.1.1.4.2.3.0` | 1m |
 | **Capacidade da Bateria** | Nível de carga atual da bateria (%) | `.1.3.6.1.4.1.935.1.1.1.2.2.1.0` | 5m |
+| **Tensão da Bateria** | Voltagem atual do banco de baterias (V) | `.1.3.6.1.4.1.935.1.1.1.2.2.2.0` | 1m |
 | **Temperatura Interna** | Temperatura do sistema de baterias (ºC) | `.1.3.6.1.4.1.935.1.1.1.2.2.3.0` | 5m |
 | **Tensão de Entrada (R/S/T)** | Voltagem de entrada (Fases R, S e T) | `.1.3.6.1.4.1.935.1.1.1.8.2.x.0` | 1m |
 | **Tensão de Saída (R/S/T)** | Voltagem de saída (Fases R, S e T) | `.1.3.6.1.4.1.935.1.1.1.8.3.x.0` | 1m |
@@ -36,9 +37,18 @@ O sistema conta com inteligência para notificar as seguintes condições críti
 3.  **UPS: Bateria com Capacidade Baixa (<20%)**
     *   **Severidade:** Desastre (High)
     *   **Condição:** Alerta crítico quando a autonomia da bateria cai abaixo de 20%.
-4.  **UPS: Serial Number Alterado**
+4.  **UPS: Voltagem de Bateria Baixa (Macro)**
+    *   **Severidade:** Alta (High)
+    *   **Condição:** Dispara se a voltagem cair abaixo do valor definido na macro `{$UPS.BATTERY.VOLT.MIN}`. Ideal para detectar falhas em células específicas do banco de baterias antes do colapso total.
+5.  **UPS: Serial Number Alterado**
     *   **Severidade:** Informação (Warning)
     *   **Condição:** Detecta se o hardware foi trocado ou se houve alteração na placa NetAgent.
+
+---
+
+## 💡 Caso de Uso Real
+
+Em um cenário real, este template detectou uma queda na voltagem nominal das baterias em um site remoto. Enquanto o painel físico do equipamento não indicava alarmes, a telemetria via Zabbix permitiu o acionamento da manutenção preventiva. O hardware falhou 24h depois, mas a substituição já havia sido programada, resultando em 0% de impacto na operação.
 
 ---
 

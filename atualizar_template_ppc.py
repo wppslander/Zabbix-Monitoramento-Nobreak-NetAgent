@@ -69,16 +69,24 @@ def main():
     template_id = t[0]['templateid']
     print(f"Conexão OK! Template ID: {template_id}")
 
-    # 2. Atualizar Descrição com Assinatura
+    # 2. Atualizar Descrição e Macros
     call_zabbix("template.update", {
         "templateid": template_id,
-        "description": f"Template para No-Breaks Intelbras/PPC via SNMPv2 (Placa NetAgent IX).{SIGNATURE}"
+        "description": f"Template para No-Breaks Intelbras/PPC via SNMPv2 (Placa NetAgent IX).{SIGNATURE}",
+        "macros": [
+            {
+                "macro": "{$UPS.BATTERY.VOLT.MIN}",
+                "value": "72",
+                "description": "Voltagem mínima do banco de baterias para disparo de alerta."
+            }
+        ]
     })
 
     # 3. Sincronizar Itens
     items_data = [
         {"name": "Carga de Saída", "key": "ups.output.load", "oid": ".1.3.6.1.4.1.935.1.1.1.4.2.3.0", "units": "%", "vtype": 3, "delay": "1m", "desc": "Carga atual."},
         {"name": "Capacidade da Bateria", "key": "ups.battery.capacity", "oid": ".1.3.6.1.4.1.935.1.1.1.2.2.1.0", "units": "%", "vtype": 3, "delay": "5m", "desc": "Nível da bateria."},
+        {"name": "Tensão da Bateria", "key": "ups.battery.voltage", "oid": ".1.3.6.1.4.1.935.1.1.1.2.2.2.0", "units": "V", "vtype": 0, "delay": "1m", "desc": "Voltagem da bateria.", "mult": 0.1},
         {"name": "Status de Operação", "key": "ups.status", "oid": ".1.3.6.1.4.1.935.1.1.1.4.1.1.0", "units": "", "vtype": 3, "delay": "1m", "desc": "Status atual.", "vmap": "UPS Output Status"},
         {"name": "Temperatura Interna", "key": "ups.temperature", "oid": ".1.3.6.1.4.1.935.1.1.1.2.2.3.0", "units": "ºC", "vtype": 0, "delay": "5m", "desc": "Temp. interna.", "mult": 0.1},
         {"name": "Serial Number", "key": "ups.serial", "oid": ".1.3.6.1.4.1.935.1.1.1.1.2.3.0", "units": "", "vtype": 1, "delay": "1h", "desc": "Número de Série."}
@@ -134,6 +142,12 @@ def main():
             "desc": "UPS: Bateria com Capacidade Baixa (<20%)", 
             "exp": f"last(/{TEMPLATE_NAME}/ups.battery.capacity)<20",
             "recovery": f"last(/{TEMPLATE_NAME}/ups.battery.capacity)>30", # Só recupera quando atingir 30%
+            "pri": 4
+        },
+        {
+            "desc": "UPS: Voltagem de Bateria Baixa (Macro)", 
+            "exp": f"last(/{TEMPLATE_NAME}/ups.battery.voltage)<{{$UPS.BATTERY.VOLT.MIN}}",
+            "recovery": f"last(/{TEMPLATE_NAME}/ups.battery.voltage)>({{$UPS.BATTERY.VOLT.MIN}}+2)", # Histerese de 2V
             "pri": 4
         }
     ]

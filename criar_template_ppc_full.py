@@ -68,6 +68,16 @@ ITEMS_TO_CREATE = [
         "description": "Nível de carga atual da bateria."
     },
     {
+        "name": "Tensão da Bateria",
+        "key": "ups.battery.voltage",
+        "oid": ".1.3.6.1.4.1.935.1.1.1.2.2.2.0",
+        "units": "V",
+        "value_type": 0,
+        "multiplier": 0.1,
+        "delay": "1m",
+        "description": "Tensão atual do banco de baterias."
+    },
+    {
         "name": "Temperatura Interna",
         "key": "ups.temperature",
         "oid": ".1.3.6.1.4.1.935.1.1.1.2.2.3.0",
@@ -150,18 +160,27 @@ def main():
 
     # 2. Criar/Atualizar Template
     print(f"Sincronizando template '{TEMPLATE_NAME}'...")
+    template_params = {
+        "host": TEMPLATE_NAME,
+        "name": TEMPLATE_VISIBLE_NAME,
+        "groups": [{"groupid": group_id}],
+        "description": f"Template para No-Breaks Intelbras/PPC via SNMPv2.{SIGNATURE}",
+        "macros": [
+            {
+                "macro": "{$UPS.BATTERY.VOLT.MIN}",
+                "value": "72",
+                "description": "Voltagem mínima do banco de baterias para disparo de alerta."
+            }
+        ]
+    }
     try:
-        template = zapi.template.create({
-            "host": TEMPLATE_NAME,
-            "name": TEMPLATE_VISIBLE_NAME,
-            "groups": [{"groupid": group_id}],
-            "description": f"Template para No-Breaks Intelbras/PPC via SNMPv2.{SIGNATURE}"
-        })
+        template = zapi.template.create(template_params)
         template_id = template['templateids'][0]
     except Exception:
         t = zapi.template.get(filter={"host": TEMPLATE_NAME})
         template_id = t[0]['templateid']
-        zapi.template.update({"templateid": template_id, "description": f"Template para No-Breaks Intelbras/PPC via SNMPv2.{SIGNATURE}"})
+        template_params["templateid"] = template_id
+        zapi.template.update(template_params)
 
     # 3. Value Mapping
     try:
@@ -208,6 +227,7 @@ def main():
         {"desc": "UPS: Falta de Energia (Operando na Bateria)", "exp": f"last(/{TEMPLATE_NAME}/ups.status)=3", "pri": 4},
         {"desc": "UPS: Sobrecarga de Saída (>90%)", "exp": f"last(/{TEMPLATE_NAME}/ups.output.load)>90", "pri": 3},
         {"desc": "UPS: Bateria com Capacidade Baixa (<20%)", "exp": f"last(/{TEMPLATE_NAME}/ups.battery.capacity)<20", "pri": 4},
+        {"desc": "UPS: Voltagem de Bateria Baixa (Macro)", "exp": f"last(/{TEMPLATE_NAME}/ups.battery.voltage)<{{$UPS.BATTERY.VOLT.MIN}}", "pri": 4},
         {"desc": "UPS: Serial Number Alterado", "exp": f"change(/{TEMPLATE_NAME}/ups.serial)=1", "pri": 2}
     ]
 
